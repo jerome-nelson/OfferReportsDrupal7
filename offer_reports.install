@@ -1,0 +1,6 @@
+<?php
+/**
+ * @file
+ * Run when module is installed/uninstalled
+ */
+require_once('inc/Entity/OfferReport.php');

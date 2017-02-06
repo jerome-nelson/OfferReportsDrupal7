@@ -1,0 +1,7 @@
+<?php
+/**
+* @file
+* Offer Reports adds page to upload offer reports
+*/
+require_once('inc/Entity/OfferReport.php');
+
