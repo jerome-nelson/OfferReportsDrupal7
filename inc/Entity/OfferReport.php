@@ -7,4 +7,13 @@
  */
 class OfferReport {
 
+  var $typeName;
+
+  function _construct($array) {
+
+  }
+
+  function checkStack($array) {
+    return (in_array($array, $this->typeName));
+  }
 }
