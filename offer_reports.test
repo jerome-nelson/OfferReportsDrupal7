@@ -1,0 +1,25 @@
+<?php
+class OfferReportsWebTest extends DrupalWebTestCase {
+    protected $privileged_user;
+
+    public static function getInfo() {
+        return array(
+            'name' => 'Simpletest Offer Report',
+            'description' => 'Ensure that the offer_reports content type provided functions properly.',
+            'group' => 'NetplayTV',
+        );
+    }
+
+    public function setUp() {
+        // Enable any modules required for the test. This should be an array of
+        // module names.
+        parent::setUp(array('offer_reports'));
+        // Create and log in our privileged user.
+        $this->privileged_user = $this->drupalCreateUser(array(
+            'create offer_reports content',
+            'extra special edit any offer_reports',
+        ));
+        $this->drupalLogin($this->privileged_user);
+    }
+
+}

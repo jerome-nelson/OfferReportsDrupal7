@@ -1,3 +1,5 @@
 name = Offer Reports
 description = A description of what your module does.
 core = 7.x
+
+files[] = offer_reports.test
