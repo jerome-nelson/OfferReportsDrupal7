@@ -1,5 +1,10 @@
-name = Offer Reports
-description = A description of what your module does.
+name = Betsson Offer Reports
+description = Module adding new content type and showing Betsson Offer Files
 core = 7.x
 
-files[] = offer_reports.test
+dependencies[] = drupal:system (>= 7.40)
+dependencies[] = views
+files[] = offer_reports.install
+files[] = offer_reports.module
+files[] = js/offer_reports.js
+files[] = css/offer_reports.css

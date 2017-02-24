@@ -1,6 +1,206 @@
 <?php
+function offer_reports_enabled() {
+  cache_clear_all();
+}
+
+function offer_reports_install() {
+  node_types_rebuild();
+  _add_custom_fields();
+}
+
+function offer_reports_uninstall() {
+  _delete_offer_nodes();
+  _delete_custom_fields();
+}
+
+function _delete_offer_nodes() {
+  /*
+   * (Uninstalling produces error: Trying to get property of non-object
+   *  in comment_node_type_delete())
+   *  https://www.drupal.org/node/2500119
+   */
+    node_type_cache_reset();
+    node_types_rebuild();
+
+    $ourNewType = 'offer_reports';
+    $nids = _return_node_ids($ourNewType);
+
+    node_delete_multiple($nids);
+    node_delete(variable_get('offer_report_node_id',''));
+    node_type_delete($ourNewType);
+}
+
 /**
- * @file
- * Run when module is installed/uninstalled
+ * @return array
  */
-require_once('inc/Entity/OfferReport.php');
+function _return_node_ids($type) {
+  $query = 'SELECT nid FROM {node} AS n WHERE n.type = :type';
+  $result = db_query($query, array(':type' => $type));
+  $nodeids = array();
+
+  foreach ($result as $row) {
+    $nodeids[] = $row->nid;
+  }
+  return $nodeids;
+}
+
+function _add_custom_fields() {
+  foreach(_offer_reports_install_fields() as $custom_fields) {
+    field_create_field($custom_fields);
+  }
+
+  foreach(_offer_reports_install_instances() as $field_instances) {
+    $instance_details = array(
+      'entity_type' => 'node',
+      'bundle' => 'offer_reports'
+    );
+    $field_instances = array_merge($field_instances, $instance_details);
+    field_create_instance($field_instances);
+  }
+}
+
+function _delete_custom_fields() {
+  foreach (array_keys(_offer_reports_install_fields()) as $field) {
+    field_delete_field($field);
+  }
+  $instances = field_info_instances('node', 'offer_reports');
+  foreach ($instances as $instance_name => $fieldinstance) {
+    field_delete_instance($fieldinstance);
+  }
+  field_purge_batch(500);
+}
+
+function _offer_reports_install_fields() {
+  $t = get_t();
+  return array(
+    'field_offer_date' => array(
+      'entity_types' => array(),
+      'field_name' => 'field_offer_date',
+      'module' => 'date',
+      'settings' => array(
+        'granularity' => array(
+          'day' => 'day',
+          'hour' => 0,
+          'minute' => 0,
+          'month' => 'month',
+          'second' => 0,
+          'year' => 'year',
+        ),
+      ),
+      'translatable' => 0,
+      'type' => 'datetime',
+    ),
+    'field_offer_file_pdf_link' => array(
+      'entity_types' => array(),
+      'field_name' => 'field_offer_file_pdf_link',
+      'indexes' => array(
+        'fid' => array(
+          0 => 'fid',
+        ),
+      ),
+      'module' => 'file',
+      'settings' => array(
+        'display_default' => 0,
+        'display_field' => 1,
+        'storage_class' => array(
+          'class_id' => 1,
+          'current_class_id' => 1,
+        ),
+        'uri_scheme' => 'storage-field-offer-file-pdf-link',
+      ),
+      'translatable' => 0,
+      'type' => 'file',
+    )
+  );
+}
+
+
+function _offer_reports_install_instances() {
+  $t = get_t();
+  return array(
+    'field_offer_date' => array(
+      'bundle' => 'offer_reports',
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'module' => 'date',
+          'settings' => array(
+            'format_type' => 'long',
+            'fromto' => 'both',
+            'show_remaining_days' => FALSE,
+          ),
+          'type' => 'date_default',
+          'weight' => 1,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_offer_date',
+      'label' => 'Date',
+      'required' => 0,
+      'settings' => array(
+        'default_value' => 'now',
+        'default_value2' => 'same',
+        'default_value_code' => '',
+        'default_value_code2' => '',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'date',
+        'settings' => array(
+          'increment' => 15,
+          'input_format' => 'custom',
+          'input_format_custom' => 'd-M-Y',
+          'label_position' => 'above',
+          'text_parts' => array(),
+          'year_range' => '-20:+3',
+        ),
+        'type' => 'date_select',
+        'weight' => 5,
+      ),
+    ),
+    'field_offer_file_pdf_link' => array(
+      'bundle' => 'offer_reports',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'file',
+          'settings' => array(),
+          'type' => 'file_default',
+          'weight' => 9,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_offer_file_pdf_link',
+      'label' => 'New PDF link',
+      'required' => 0,
+      'settings' => array(
+        'description_field' => 0,
+        'file_directory' => '',
+        'file_extensions' => 'txt pdf',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'file',
+        'settings' => array(
+          'progress_indicator' => 'throbber',
+        ),
+        'type' => 'file_generic',
+        'weight' => 10,
+      ),
+    )
+  );
+}

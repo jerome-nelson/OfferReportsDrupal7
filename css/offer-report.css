@@ -1,0 +1,18 @@
+.button {
+    display: inline-block;
+    background-color: #8dc63f;
+    padding: 1em 0.5em;
+    color: #fff;
+    text-align: center;
+    width: 50px;
+}
+.button + .button {
+    margin-left: 10px;
+}
+
+#block-offer-reports-offer-page-content .node-page > h2:nth-child(1) {
+    display: none;
+}
+#agree_term_container {
+    text-align: center;
+}
