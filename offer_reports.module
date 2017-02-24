@@ -49,7 +49,7 @@ function offer_reports_node_info() {
   return array(
     'offer_reports' => array(
       'name'  => t('Offer Reports'),
-      'description' => t('Used to add Offer Reports relating to Betsson Offer 2017'),
+      'description' => t('Used to add Offer Reports'),
       'base' => t('offer_reports'),
       'has_title' => TRUE,
       'title_label' => t('Offer Report Title')
